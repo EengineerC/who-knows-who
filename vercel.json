@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".svelte-kit/vercel",
+  "outputDirectory": ".vercel/output/static",
   "devCommand": "npm run dev",
   "installCommand": "npm install"
 } 
