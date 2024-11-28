@@ -1,14 +1,14 @@
 import adapter from '@sveltejs/adapter-vercel';
 import { vitePreprocess } from '@sveltejs/kit/vite';
-import type { Config } from '@sveltejs/kit';
 
-const config: Config = {
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
 	kit: {
 		adapter: adapter({
-			runtime: 'nodejs18.x'
+			runtime: 'nodejs20.x'
 		})
 	},
 	preprocess: vitePreprocess()
 };
 
-export default config;
+export default config; 
