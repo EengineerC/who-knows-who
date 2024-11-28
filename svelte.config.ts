@@ -1,10 +1,14 @@
 import adapter from '@sveltejs/adapter-vercel';
-import { Config } from '@sveltejs/kit';
+import { vitePreprocess } from '@sveltejs/kit/vite';
+import type { Config } from '@sveltejs/kit';
 
 const config: Config = {
 	kit: {
-		adapter: adapter()
-	}
+		adapter: adapter({
+			runtime: 'nodejs18.x'
+		})
+	},
+	preprocess: vitePreprocess()
 };
 
 export default config;
