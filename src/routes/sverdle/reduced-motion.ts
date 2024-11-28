@@ -3,17 +3,14 @@ import { browser } from '$app/environment';
 
 const reduced_motion_query = '(prefers-reduced-motion: reduce)';
 
-const get_initial_motion_preference = () => {
+const get_initial_motion_preference = (): boolean => {
 	if (!browser) return false;
 	return window.matchMedia(reduced_motion_query).matches;
 };
 
 export const reduced_motion = readable(get_initial_motion_preference(), (set) => {
 	if (browser) {
-		/**
-		 * @param {MediaQueryListEvent} event
-		 */
-		const set_reduced_motion = (event) => {
+		const set_reduced_motion = (event: MediaQueryListEvent) => {
 			set(event.matches);
 		};
 		const media_query_list = window.matchMedia(reduced_motion_query);

@@ -2,16 +2,18 @@ import { onCLS, onFCP, onFID, onLCP, onTTFB } from 'web-vitals';
 
 const vitalsUrl = 'https://vitals.vercel-analytics.com/v1/vitals';
 
-function getConnectionSpeed() {
-	// @ts-ignore
-	return navigator?.connection?.effectiveType ?? '';
+function getConnectionSpeed(): string {
+	return (navigator as any)?.connection?.effectiveType ?? '';
 }
 
-/**
- * @param {import("web-vitals").Metric} metric
- * @param {{ params: { [s: string]: any; } | ArrayLike<any>; path: string; analyticsId: string; debug: boolean; }} options
- */
-function sendToAnalytics(metric, options) {
+interface VitalsOptions {
+	params: { [key: string]: any };
+	path: string;
+	analyticsId: string;
+	debug: boolean;
+}
+
+function sendToAnalytics(metric: any, options: VitalsOptions) {
 	const page = Object.entries(options.params).reduce(
 		(acc, [key, value]) => acc.replace(value, `[${key}]`),
 		options.path
@@ -46,10 +48,7 @@ function sendToAnalytics(metric, options) {
 		});
 }
 
-/**
- * @param {any} options
- */
-export function webVitals(options) {
+export function webVitals(options: Omit<VitalsOptions, 'debug'> & { debug?: boolean }) {
 	try {
 		console.log(`[Web Vitals] for page ${options.path}`);
 		onFID((metric) => sendToAnalytics(metric, options));
