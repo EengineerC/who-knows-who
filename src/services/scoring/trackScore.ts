@@ -83,3 +83,18 @@ class KnowledgeTracker {
 }
 
 export default KnowledgeTracker;
+
+
+
+
+
+// const knowledgeTracker = new KnowledgeTracker();
+
+// // When a guess is made
+// await knowledgeTracker.updateKnowledgeScore(
+//     question, guesser, answerer, guess, correctAnswer
+// );
+
+// // Later, retrieve scores
+// const playerAScores = knowledgeTracker.getPlayerOverallKnowledgeScores(playerA.id);
+// const specificScore = knowledgeTracker.getKnowledgeScore(playerA.id, playerB.id);
