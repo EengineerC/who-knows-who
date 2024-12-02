@@ -1,16 +1,17 @@
 import { Player } from "../../types/game";
+import { PlayerKnowledgeScores } from "../../types/score";
 import { calculateKnowledgeScore } from "./scoreCalculator";
 
-// Types for knowledge tracking
-interface PlayerKnowledgeScores {
-    [playerID: string]: {
-        [otherPlayerID: string]: {
-            totalGuesses: number;
-            correctGuesses: number;
-            accuracyPercentage: number;
-        }
-    }
-}
+// // Types for knowledge tracking
+// interface PlayerKnowledgeScores {
+//     [playerID: string]: {
+//         [otherPlayerID: string]: {
+//             totalGuesses: number;
+//             correctGuesses: number;
+//             accuracyPercentage: number;
+//         }
+//     }
+// }
 
 class KnowledgeTracker {
     private knowledgeScores: PlayerKnowledgeScores = {};
@@ -45,7 +46,7 @@ class KnowledgeTracker {
 
         // Use existing calculateKnowledgeScore function to determine accuracy
         const isCorrect = await calculateKnowledgeScore(
-            question, guesser, answerer, guess, correctAnswer
+            question, guess, correctAnswer
         );
 
         // Update tracking

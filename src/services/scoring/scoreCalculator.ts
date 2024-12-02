@@ -3,12 +3,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function calculateKnowledgeScore(
     question: string,
-    guesser: Player, 
-    answerer: Player, 
     guess: string, 
     correctAnswer: string
 ) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;;
     if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
     
     const genAI = new GoogleGenerativeAI(apiKey);

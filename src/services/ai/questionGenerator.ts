@@ -6,8 +6,8 @@ interface PlayerDetails {
 
 
 export async function generatePersonalQuestion(playerDetails: PlayerDetails) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) throw new Error('VITE_GEMINI_API_KEY is not configured');
   
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -27,7 +27,9 @@ export async function generatePersonalQuestion(playerDetails: PlayerDetails) {
 
   try {
     const result = await model.generateContent(prompt);
-    const parsedResponse = JSON.parse(result.response.text());
+    const responseText = result.response.text();
+    const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
+    const parsedResponse = JSON.parse(cleanedResponse);
     return parsedResponse;
   } catch (error) {
     console.error('Question generation failed:', error);
