@@ -25,8 +25,8 @@
 			<li aria-current={$page.url.pathname === '/sverdle' ? 'page' : undefined}>
 				<a href="/sverdle">Sverdle</a>
 			</li>
-			<li aria-current={$page.url.pathname === '/contact' ? 'page' : undefined}>
-				<a href="/contact">Contact</a>
+			<li aria-current={$page.url.pathname === '/game' ? 'page' : undefined}>
+				<a href="/game">Who Knows Who Game</a>
 			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">
@@ -35,7 +35,7 @@
 	</nav>
 
 	<div class="corner">
-		<a href="https://github.com/sveltejs/kit">
+		<a href="https://github.com/eengineerc">
 			<img src={github} alt="GitHub" />
 		</a>
 	</div>

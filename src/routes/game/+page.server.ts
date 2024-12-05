@@ -5,8 +5,8 @@ import { calculateKnowledgeScore } from '../../services/scoring/scoreCalculator'
 
 
 export const load: PageServerLoad = async () => {
-    // You'll need to pass in actual player details
-    const playerDetails = { name: 'John Doe' }; 
+    // Todo: conect to actual player data
+    const playerDetails = { name: 'alice' }; 
     
     try {
         const questionData = await generatePersonalQuestion(playerDetails);
@@ -34,13 +34,11 @@ export const actions: Actions = {
         }
 
         try {
-            // For now, we'll just return a placeholder score
-            // In a real implementation, you'd compare the answer 
             const score = await calculateKnowledgeScore(
                 'Placeholder Question', 
                 answer, 
                 'Correct Answer'
-            );
+            ); //Todo connect to real data
 
             return { 
                 success: true, 
