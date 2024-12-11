@@ -22,6 +22,7 @@ export async function generatePersonalQuestion(playerDetails: PlayerDetails) {
   - Be specific enough that only close friends/family would know
   - Have a clear, factual answer
   - Not reveal sensitive personal information
+  - Be something that will have a true answer
   - Be formatted as a JSON object with 'question' and 'type' fields
   - Type should be one of: ['memory', 'preference', 'habit', 'interest']`;
 

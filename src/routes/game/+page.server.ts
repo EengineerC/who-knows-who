@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { generatePersonalQuestion } from '../../services/ai/questionGenerator';
-import { calculateKnowledgeScore } from '../../services/scoring/scoreCalculator';
+import { generatePersonalQuestion } from '../../services/game/questionGenerator';
+import { calculateKnowledgeScore } from '../../services/game/scoreCalculator';
 
 
 export const load: PageServerLoad = async () => {
