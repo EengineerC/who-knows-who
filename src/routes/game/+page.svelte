@@ -82,7 +82,7 @@
         </div>
     {/if}
 
-    <GraphScore/>
+    <GraphScore gameCode ='GAME123'/>
 </div>
 
 <style>

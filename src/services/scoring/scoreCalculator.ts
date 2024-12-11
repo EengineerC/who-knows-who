@@ -25,7 +25,5 @@ export async function calculateKnowledgeScore(
         }
     } catch (error) {
         console.error('Question generation failed:', error);
-        throw new Error('Failed to generate question');
     }
 }
-

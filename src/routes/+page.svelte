@@ -26,7 +26,7 @@
 		try editing <strong>src/routes/+page.svelte</strong>
 	</h2>
 
-	<GraphScore />
+	<GraphScore gameCode = 'exampleGame' />
 </section>
 
 <style>

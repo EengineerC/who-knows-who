@@ -1,6 +1,77 @@
+
+import { db } from "../../firebase/firebase";
+import { calculateKnowledgeScore } from "./scoreCalculator"
+
+import { getDatabase, ref, set, get, update } from 'firebase/database';
+
+async function trackScores(question: string, answerer: string, guesser: string, guess: string) {
+    
+    // If the guesser is the answerer, write their answer to the database
+    if (guesser === answerer) {
+        const correctAnswerRef = ref(db, `questions/${question}/correctAnswer`);
+        await set(correctAnswerRef, guess);
+        return;
+    }
+    
+    // If guesser is not the answerer, check for correct answer
+    const correctAnswerRef = ref(db, `questions/${question}/correctAnswer`);
+    const correctAnswerSnapshot = await get(correctAnswerRef);
+    
+    // If correct answer doesn't exist yet, return waiting status
+    if (!correctAnswerSnapshot.exists()) {
+        return `waiting for ${answerer} to answer`;
+    }
+    
+    const correctAnswer = correctAnswerSnapshot.val();
+    
+    // Calculate knowledge score
+    const isCorrect = await calculateKnowledgeScore(question, guess, correctAnswer);
+    
+    // Reference to the guesser's score tracking
+    const guessersScoreRef = ref(db, `scores/${guesser}`);
+    const guessersScoreSnapshot = await get(guessersScoreRef);
+    
+    // Get current scores or initialize if not exists
+    const currentScores = guessersScoreSnapshot.exists() 
+        ? guessersScoreSnapshot.val() 
+        : {};
+    
+    // Initialize player's entry if not exists
+    const playerScores = currentScores[answerer] || { 
+        totalGuesses: 0, 
+        correctGuesses: 0, 
+        accuracyPercentage: 0 
+    };
+    
+    // Update scores based on guess correctness
+    if (isCorrect) {
+        playerScores.totalGuesses += 1;
+        playerScores.correctGuesses += 1;
+    } else {
+        playerScores.totalGuesses += 1;
+    }
+    
+    // Recalculate accuracy percentage
+    playerScores.accuracyPercentage = playerScores.totalGuesses > 0
+        ? Math.round((playerScores.correctGuesses / playerScores.totalGuesses) * 100)
+        : 0;
+    
+    // Update the database with new scores
+    await update(guessersScoreRef, {
+        [answerer]: playerScores
+    });
+}
+
+
+
+
+
+
+
 // // import { Player } from "../../types/game";
 // // import { PlayerKnowledgeScores } from "../../types/score";
 // // import { calculateKnowledgeScore } from "./scoreCalculator";
+
 
 
 // // class KnowledgeTracker {
@@ -258,128 +329,139 @@
 // exampleUsage()
 
 
-import { db } from "../../firebase/firebase";
-import { Player } from "../../types/game";
-import { PlayerKnowledgeScores } from "../../types/score";
-import { calculateKnowledgeScore } from "./scoreCalculator";
-import { getDatabase, ref, set, get, update, child } from 'firebase/database';
+// import { db } from "../../firebase/firebase";
+// import { Player } from "../../types/game";
+// import { PlayerKnowledgeScores } from "../../types/score";
+// import { calculateKnowledgeScore } from "./scoreCalculator";
+// import { getDatabase, ref, set, get, update, child } from 'firebase/database';
 
-class KnowledgeTracker {
-    private knowledgeScores: PlayerKnowledgeScores = {};
+// class KnowledgeTracker {
+//     private knowledgeScores: PlayerKnowledgeScores = {};
 
-    async initializePlayerTracking(playerID: string) {
-        try {
-            const playerRef = ref(db, `knowledgeScores/${playerID}`);
-            const snapshot = await get(playerRef);
+//     async initializePlayerTracking(playerID: string) {
+//         try {
+//             const playerRef = ref(db, `knowledgeScores/${playerID}`);
+//             const snapshot = await get(playerRef);
             
-            if (!snapshot.exists()) {
-                await set(playerRef, {});
-            }
-        } catch (error) {
-            console.error('Error initializing player tracking:', error);
-        }
-    }
+//             if (!snapshot.exists()) {
+//                 await set(playerRef, {});
+//             }
+//         } catch (error) {
+//             console.error('Error initializing player tracking:', error);
+//         }
+//     }
 
-    async updateKnowledgeScore(
-        question: string,
-        guesser: Player, 
-        answerer: Player, 
-        guess: string, 
-        correctAnswer: string
-    ) {
-        try {
-            await this.initializePlayerTracking(guesser.id);
-            await this.initializePlayerTracking(answerer.id);
+//     async updateKnowledgeScore(
+//         question: string,
+//         guesser: Player, 
+//         answerer: Player, 
+//         guess: string, 
+//         correctAnswer: string
+//     ) {
+//         try {
+//             await this.initializePlayerTracking(guesser.id);
+//             await this.initializePlayerTracking(answerer.id);
 
-            const guesserRef = ref(db, `knowledgeScores/${guesser.id}/${answerer.id}`);
-            const guesserSnapshot = await get(guesserRef);
-            const currentScores = guesserSnapshot.val() || {
-                totalGuesses: 0,
-                correctGuesses: 0,
-                accuracyPercentage: 0
-            };
+//             const guesserRef = ref(db, `knowledgeScores/${guesser.id}/${answerer.id}`);
+//             const guesserSnapshot = await get(guesserRef);
+//             const currentScores = guesserSnapshot.val() || {
+//                 totalGuesses: 0,
+//                 correctGuesses: 0,
+//                 accuracyPercentage: 0
+//             };
 
-            const isCorrect = await calculateKnowledgeScore(
-                question, guess, correctAnswer
-            );
+//             const isCorrect = await calculateKnowledgeScore(
+//                 question, guess, correctAnswer
+//             );
 
-            currentScores.totalGuesses++;
+//             currentScores.totalGuesses++;
             
-            if (isCorrect) {
-                currentScores.correctGuesses++;
-            }
+//             if (isCorrect) {
+//                 currentScores.correctGuesses++;
+//             }
 
-            currentScores.accuracyPercentage = 
-                (currentScores.correctGuesses / currentScores.totalGuesses) * 100;
+//             currentScores.accuracyPercentage = 
+//                 (currentScores.correctGuesses / currentScores.totalGuesses) * 100;
 
-            await set(guesserRef, currentScores);
+//             await set(guesserRef, currentScores);
 
-            this.knowledgeScores[guesser.id] = this.knowledgeScores[guesser.id] || {};
-            this.knowledgeScores[guesser.id][answerer.id] = currentScores;
+//             this.knowledgeScores[guesser.id] = this.knowledgeScores[guesser.id] || {};
+//             this.knowledgeScores[guesser.id][answerer.id] = currentScores;
 
-            return currentScores;
-        } catch (error) {
-            console.error('Error updating knowledge score:', error);
-            throw error;
-        }
-    }
+//             return currentScores;
+//         } catch (error) {
+//             console.error('Error updating knowledge score:', error);
+//             throw error;
+//         }
+//     }
 
-    async getKnowledgeScore(guesserID: string, answererID: string) {
-        try {
-            const scoreRef = ref(db, `knowledgeScores/${guesserID}/${answererID}`);
-            const snapshot = await get(scoreRef);
-            return snapshot.val() || null;
-        } catch (error) {
-            console.error('Error getting knowledge score:', error);
-            return null;
-        }
-    }
+//     async getKnowledgeScore(guesserID: string, answererID: string) {
+//         try {
+//             const scoreRef = ref(db, `knowledgeScores/${guesserID}/${answererID}`);
+//             const snapshot = await get(scoreRef);
+//             return snapshot.val() || null;
+//         } catch (error) {
+//             console.error('Error getting knowledge score:', error);
+//             return null;
+//         }
+//     }
 
-    async getPlayerOverallKnowledgeScores(playerID: string) {
-        try {
-            const playerRef = ref(db, `knowledgeScores/${playerID}`);
-            const snapshot = await get(playerRef);
-            return snapshot.val() || {};
-        } catch (error) {
-            console.error('Error getting player overall knowledge scores:', error);
-            return {};
-        }
-    }
+//     async getPlayerOverallKnowledgeScores(playerID: string) {
+//         try {
+//             const playerRef = ref(db, `knowledgeScores/${playerID}`);
+//             const snapshot = await get(playerRef);
+//             return snapshot.val() || {};
+//         } catch (error) {
+//             console.error('Error getting player overall knowledge scores:', error);
+//             return {};
+//         }
+//     }
 
-    async loadKnowledgeScores(playerID: string) {
-        try {
-            const playerRef = ref(db, `knowledgeScores/${playerID}`);
-            const snapshot = await get(playerRef);
+//     async loadKnowledgeScores(playerID: string) {
+//         try {
+//             const playerRef = ref(db, `knowledgeScores/${playerID}`);
+//             const snapshot = await get(playerRef);
             
-            if (snapshot.exists()) {
-                this.knowledgeScores[playerID] = snapshot.val() || {};
-            }
-        } catch (error) {
-            console.error('Error loading knowledge scores:', error);
-        }
-    }
+//             if (snapshot.exists()) {
+//                 this.knowledgeScores[playerID] = snapshot.val() || {};
+//             }
+//         } catch (error) {
+//             console.error('Error loading knowledge scores:', error);
+//         }
+//     }
 
-    async serializeScores(playerID: string) {
-        try {
-            const playerRef = ref(db, `knowledgeScores/${playerID}`);
-            const snapshot = await get(playerRef);
-            return JSON.stringify(snapshot.val() || {});
-        } catch (error) {
-            console.error('Error serializing scores:', error);
-            return '{}';
-        }
-    }
+//     async serializeScores(playerID: string) {
+//         try {
+//             const playerRef = ref(db, `knowledgeScores/${playerID}`);
+//             const snapshot = await get(playerRef);
+//             return JSON.stringify(snapshot.val() || {});
+//         } catch (error) {
+//             console.error('Error serializing scores:', error);
+//             return '{}';
+//         }
+//     }
 
-    async deserializeScores(playerID: string, serializedScores: string) {
-        try {
-            const playerRef = ref(db, `knowledgeScores/${playerID}`);
-            const parsedScores = JSON.parse(serializedScores);
-            await set(playerRef, parsedScores);
-            this.knowledgeScores[playerID] = parsedScores;
-        } catch (error) {
-            console.error('Error deserializing scores:', error);
-        }
-    }
-}
+//     async deserializeScores(playerID: string, serializedScores: string) {
+//         try {
+//             const playerRef = ref(db, `knowledgeScores/${playerID}`);
+//             const parsedScores = JSON.parse(serializedScores);
+//             await set(playerRef, parsedScores);
+//             this.knowledgeScores[playerID] = parsedScores;
+//         } catch (error) {
+//             console.error('Error deserializing scores:', error);
+//         }
+//     }
+// }
 
-export default KnowledgeTracker;
+// export default KnowledgeTracker;
+
+
+//await right correctAnswer from database
+
+//if right answer isnt there say waiting for {answerer} to answer
+
+//when we get right answer I 
+
+// const question = 'i need to connect this'
+// const correctAnswer: string = 'blue'
+// const guess = 'blue'
