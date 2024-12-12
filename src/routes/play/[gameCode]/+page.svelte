@@ -6,60 +6,61 @@
     import GraphScore from "../../GraphScore.svelte";
 
     export let data: {
-        question?: string;
-        questionType?: string;
-        answerer?: string;
-    } = {};
+        question?: string
+        questionType?: string
+        answerer?: string
+    } = {}
     export let form: {
-        success?: boolean;
-        message?: string;
-        error?: string;
-    } = {};
+        success?: boolean
+        message?: string
+        error?: string
+    } = {}
 
-    let gameCode = '';
-    let playerName = '';
-    let formSubmitted = false;
-    let submitting = false;
-    let message: string | null = null;
+    let gameCode = ''
+    let playerName = ''
+    let formSubmitted = false
+    let submitting = false
+    let message: string | null = null
 
     onMount(() => {
-        gameCode = localStorage.getItem('gameCode') || '';
-        playerName = localStorage.getItem('playerName') || '';
-    });
+        gameCode = localStorage.getItem('gameCode') || ''
+        playerName = localStorage.getItem('playerName') || ''
+    })
 
     $: {
         if (form?.success) {
-            formSubmitted = true;
-            message= form.message ?? null;
+            formSubmitted = true
+            message= form.message ?? null
         }
     }
 
     function resetForm() {
-        formSubmitted = false;
-        message = null;
-        submitting = false;
+        formSubmitted = false
+        message = null
+        submitting = false
     }
 
     async function endGame() {
         try {
             // Remove the game from the database
-            const gameRef = ref(db, `gamecode/${gameCode}`);
-            await remove(gameRef);
+            const gameRef = ref(db, `gamecode/${gameCode}`)
+            await remove(gameRef)
 
             // Clear local storage
-            localStorage.removeItem('gameCode');
-            localStorage.removeItem('playerName');
+            localStorage.removeItem('gameCode')
+            localStorage.removeItem('playerName')
 
             // Redirect to start page
-            await goto('/start');
+            await goto('/')
         } catch (error) {
-            console.error('Error ending game:', error);
-            alert('Failed to end game. Please try again.');
+            console.error('Error ending game:', error)
+            alert('Failed to end game. Please try again.')
         }
     }
 </script>
 
 <div class="container1">
+    
     {#if form?.error}
         <div class="alert alert-error mb-6">
             {form.error}
@@ -69,6 +70,8 @@
     {#if !formSubmitted}
         <div class="question-container mb-6">
             <h1 class="text">Welcome, {playerName}!</h1>
+            <!-- The how to play idea is just not fully baked. i dont like how it looks rn -->
+            <!-- <a class="how-to-play" href="/how-to-play">How to play</a> -->
             <h3 class="text">{data.question}</h3>
 
             <form method="POST">
@@ -187,4 +190,25 @@
     .end-game-btn:hover {
         background-color: #b91c1c; /* Darker red on hover */
     }
+
+    /* .how-to-play {
+		color: var(--color-text);
+	}
+
+	.how-to-play::before {
+		content: 'i';
+		display: inline-block;
+		font-size: 0.8em;
+		font-weight: 900;
+		width: 1em;
+		height: 1em;
+		padding: 0.2em;
+		line-height: 1;
+		border: 1.5px solid var(--color-text);
+		border-radius: 50%;
+		text-align: center;
+		margin: 0 0.5em 0 0;
+		position: center;
+		top: -0.05em;
+	} */
 </style>

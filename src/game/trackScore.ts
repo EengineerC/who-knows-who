@@ -23,26 +23,19 @@ export const trackScores = async (
     
     // If correct answer doesn't exist yet, return waiting status
     if (!correctAnswerSnapshot.exists()) {
-        // console.log(`waiting for ${answerer} to answer`)
         
         return `waiting for ${answerer} to answer`
     }
     
     const correctAnswer = correctAnswerSnapshot.val()
-    // console.log(correctAnswer)
     
-    
-    // Calculate knowledge score
     const isCorrect = await calculateKnowledgeScore(question, guess, correctAnswer)
     
-    // Construct the base path for scores
-    const baseScorePath = gameCode ? `gamecode/${gameCode}/scores` : 'scores'
+    const baseScorePath = gameCode ? `gamecode/${gameCode}/scores` : 'scores' //ts doesnt believe i can only get here if i have a gamecode
     
-    // Reference to the guesser's score tracking
     const guessersScoreRef = ref(db, `${baseScorePath}/${guesser}`)
     const guessersScoreSnapshot = await get(guessersScoreRef)
     
-    // Get current scores or initialize if not exists
     const currentScores = guessersScoreSnapshot.exists() 
         ? guessersScoreSnapshot.val() 
         : {}
@@ -55,7 +48,7 @@ export const trackScores = async (
         accuracyPercentage: 0 
     }
     
-    // Update scores based on guess correctness
+    //self explanitory
     if (isCorrect) {
         playerScores.totalGuesses += 1
         playerScores.correctGuesses += 1

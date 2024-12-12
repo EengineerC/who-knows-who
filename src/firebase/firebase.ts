@@ -89,15 +89,6 @@ export async function getCurrentQuestion(gameCode: string) {
   }
 }
 
-// export async function updateGameState(gameCode: string, updates: any) {
-//   try {
-//     const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
-//     await update(stateRef, updates);
-//   } catch (error) {
-//     console.error("Error updating game state:", error);
-//   }
-// }
-
 export async function selectRandomAnswerer(gameCode: string, players: string[]) {
   if (!players || players.length === 0) {
     console.error('No players available to select an answerer');
@@ -126,14 +117,6 @@ export async function setCorrectAnswer(gameCode: string, questionText: string, c
       console.error("Error adding question:", error);
   }
 }
-
-// export async function addPlayer(gameCode: string, guesser: string) {
-//   try {
-//       await set(ref(db, `gamecode/${gameCode}/scores/`), guesser);
-//   } catch (error) {
-//       console.error("Error adding question:", error);
-//   }
-// }
 
 export async function addAnsweredPlayer(gameCode: string, guesser: string) {
   try {
