@@ -12,7 +12,7 @@
     } = {};
     export let form: {
         success?: boolean;
-        score?: number;
+        message?: string;
         error?: string;
     } = {};
 
@@ -20,27 +20,23 @@
     let playerName = '';
     let formSubmitted = false;
     let submitting = false;
-    let score: number | null = null;
-    let isCurrentPlayerAnswerer = false;
+    let message: string | null = null;
 
     onMount(() => {
         gameCode = localStorage.getItem('gameCode') || '';
         playerName = localStorage.getItem('playerName') || '';
-        
-        // Check if current player is the answerer
-        isCurrentPlayerAnswerer = playerName === data.answerer;
     });
 
     $: {
         if (form?.success) {
             formSubmitted = true;
-            score = form.score ?? null;
+            message= form.message ?? null;
         }
     }
 
     function resetForm() {
         formSubmitted = false;
-        score = null;
+        message = null;
         submitting = false;
     }
 
@@ -99,18 +95,14 @@
     {:else}
         <div class="result-container bg-white shadow-xl rounded-lg px-8 pt-6 pb-8 mb-4 text-center">
             <h2 class="text-3xl font-bold mb-6">
-                {score === 1 ? 'Correct!' : 'Incorrect'}
+                {message}
             </h2>
-            <p class="text-lg text-gray-600 mb-4">
-                {score === 1 
-                    ? 'You knew it!' 
-                    : 'You might need to learn more about this person.'}
-            </p>
+            <p>Please wait until everyone has answered and then hit next question</p>
             <button 
                 on:click={resetForm}
                 class="retry-btn"
             >
-                Try Another Question
+                Next Question
             </button>
 
         </div>

@@ -24,7 +24,6 @@
             if (!game) {
                 await initializeGameDatabase(gameCode);
             }
-
             // Save game details in local storage
             localStorage.setItem('gameCode', gameCode);
             localStorage.setItem('playerName', playerName);
@@ -50,13 +49,9 @@
         </p>
     </div>
 
-    <!-- Graph Section -->
-    <div class="bg-white p-6 rounded-lg shadow-md max-w-4xl w-full mb-8">
-        <h2 class="text-2xl font-bold mb-4 text-center">Game Score Overview</h2>
-        <GraphScore gameCode="exampleGame" />
-    </div>
+    <GraphScore gameCode="exampleGame" />
 
-    <!-- Game Entry Form -->
+
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 class="text-2xl font-bold mb-6 text-center">Enter Game</h2>
 
