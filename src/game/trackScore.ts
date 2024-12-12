@@ -1,4 +1,4 @@
-import { db } from "../firebase/firebase";
+import { addAnsweredPlayer, db } from "../firebase/firebase";
 import { calculateKnowledgeScore } from "./scoreCalculator"
 import { getDatabase, ref, set, get, update, child } from 'firebase/database';
 
@@ -9,23 +9,29 @@ export const trackScores = async (
     guess: string,
     gameCode?: string
 ) => {
+    // console.log('question', question, 'answerer', answerer, 'guesser', guesser,'guess',guess, 'gamecode', gameCode);
     // If the guesser is the answerer, write their answer to the database
     if (guesser === answerer) {
-        const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}questions/${question}/correctAnswer`);
+        const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}/correctAnswer`);
         await set(correctAnswerRef, guess);
-        return;
+        // console.log(`set ${guess} to correctAnswer`);
+        return 1;
     }
     
     // If guesser is not the answerer, check for correct answer
-    const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}questions/${question}/correctAnswer`);
+    const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}/correctAnswer`);
     const correctAnswerSnapshot = await get(correctAnswerRef);
     
     // If correct answer doesn't exist yet, return waiting status
     if (!correctAnswerSnapshot.exists()) {
+        // console.log(`waiting for ${answerer} to answer`);
+        
         return `waiting for ${answerer} to answer`;
     }
     
     const correctAnswer = correctAnswerSnapshot.val();
+    // console.log(correctAnswer);
+    
     
     // Calculate knowledge score
     const isCorrect = await calculateKnowledgeScore(question, guess, correctAnswer);
@@ -41,6 +47,7 @@ export const trackScores = async (
     const currentScores = guessersScoreSnapshot.exists() 
         ? guessersScoreSnapshot.val() 
         : {};
+    console.log('currnescores',currentScores);
     
     // Initialize player's entry if not exists
     const playerScores = currentScores[answerer] || { 
@@ -67,8 +74,10 @@ export const trackScores = async (
         [answerer]: playerScores
     });
 
+    // addAnsweredPlayer(gameCode,guesser)
+
     // Optional: Log the score tracking for debugging
-    console.log(`Score tracked - Guesser: ${guesser}, Answerer: ${answerer}, Correct: ${isCorrect}`);
+    // console.log(`Score tracked - Guesser: ${guesser}, Answerer: ${answerer}, Correct: ${isCorrect}`);
 
     return isCorrect ? 1 : 0;
 }

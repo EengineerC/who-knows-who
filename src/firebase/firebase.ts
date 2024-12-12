@@ -28,7 +28,18 @@ export async function initializeGameDatabase(gameCode: string) {
 
         });
 
-        console.log(`Game database structure initialized for game code: ${gameCode}`);
+        await set(ref(db, `gamecode/${gameCode}/players`), {
+
+        });
+
+        await set(ref(db, `gamecode/${gameCode}/answeredPlayers`), {
+
+        });
+
+        await set(ref(db, `gamecode/${gameCode}/currentAnswerer`), {
+
+        });
+
     } catch (error) {
         console.error("Error initializing game database:", error);
     }
@@ -56,9 +67,9 @@ export async function fetchScores(
 }
 
 
-export async function getGameState(gameCode: string) {
+export async function getGame(gameCode: string) {
   try {
-    const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
+    const stateRef = ref(db, `gamecode/${gameCode}`);
     const snapshot = await get(stateRef);
     return snapshot.exists() ? snapshot.val() : null;
   } catch (error) {
@@ -66,31 +77,43 @@ export async function getGameState(gameCode: string) {
     return null;
   }
 }
-async function updateGameState(gameCode: string, updates: any) {
+
+export async function getCurrentQuestion(gameCode: string) {
   try {
-    const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
-    await update(stateRef, updates);
+    const stateRef = ref(db, `gamecode/${gameCode}/questions`);
+    const snapshot = await get(stateRef);
+    return snapshot.exists() ? snapshot.val() : null;
   } catch (error) {
-    console.error("Error updating game state:", error);
+    console.error("Error getting question:", error);
+    return null;
   }
 }
 
+// export async function updateGameState(gameCode: string, updates: any) {
+//   try {
+//     const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
+//     await update(stateRef, updates);
+//   } catch (error) {
+//     console.error("Error updating game state:", error);
+//   }
+// }
+
 export async function selectRandomAnswerer(gameCode: string, players: string[]) {
+  if (!players || players.length === 0) {
+    console.error('No players available to select an answerer');
+    return null;
+  }
+
   const randomIndex = Math.floor(Math.random() * players.length);
   const answerer = players[randomIndex];
+  await set(ref(db, `gamecode/${gameCode}/currentAnswerer`), { name: answerer });
   
-  await updateGameState(gameCode, {
-    currentAnswerer: answerer,
-    questionStatus: 'awaiting_answer'
-  });
-
   return answerer;
 }
 
-// Function to add a question to the database
 export async function addQuestion(gameCode: string, questionText: string) {
   try {
-      await set(ref(db, `gamecode/${gameCode}/questions/`), questionText);
+    await set(ref(db, `gamecode/${gameCode}/questions/`), questionText);
   } catch (error) {
       console.error("Error adding question:", error);
   }
@@ -104,9 +127,17 @@ export async function setCorrectAnswer(gameCode: string, questionText: string, c
   }
 }
 
-export async function addPlayer(gameCode: string, guesser: string) {
+// export async function addPlayer(gameCode: string, guesser: string) {
+//   try {
+//       await set(ref(db, `gamecode/${gameCode}/scores/`), guesser);
+//   } catch (error) {
+//       console.error("Error adding question:", error);
+//   }
+// }
+
+export async function addAnsweredPlayer(gameCode: string, guesser: string) {
   try {
-      await set(ref(db, `gamecode/${gameCode}/scores/`), guesser);
+      await set(ref(db, `gamecode/${gameCode}/answeredPlayers/`), guesser);
   } catch (error) {
       console.error("Error adding question:", error);
   }
