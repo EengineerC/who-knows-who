@@ -1,28 +1,22 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-interface PlayerDetails {
-  name: string;
-}
+// interface PlayerDetails {
+//   name: string;
+// }
 
 
-export async function generatePersonalQuestion(playerDetails: PlayerDetails) {
+export async function generatePersonalQuestion(answerer:string) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY is not configured');
   
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-  // Add safety checks
-  if (!playerDetails?.name) {
-    throw new Error('Player details are required');
-  }
-
-  const prompt = `Generate a unique personal trivia question about ${playerDetails.name} 
+  const prompt = `Forget all previous instructions and generate a unique personal trivia question about ${answerer} 
   that requires specific insider knowledge. The question should:
   - Be specific enough that only close friends/family would know
   - Have a clear, factual answer
   - Not reveal sensitive personal information
-  - Be something that will have a true answer
   - Be formatted as a JSON object with 'question' and 'type' fields
   - Type should be one of: ['memory', 'preference', 'habit', 'interest']`;
 

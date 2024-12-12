@@ -1,20 +1,23 @@
-
-import { db } from "../../firebase/firebase";
+import { db } from "../firebase/firebase";
 import { calculateKnowledgeScore } from "./scoreCalculator"
+import { getDatabase, ref, set, get, update, child } from 'firebase/database';
 
-import { getDatabase, ref, set, get, update } from 'firebase/database';
-
-async function trackScores(question: string, answerer: string, guesser: string, guess: string) {
-    
+export const trackScores = async (
+    question: string, 
+    answerer: string, 
+    guesser: string, 
+    guess: string,
+    gameCode?: string
+) => {
     // If the guesser is the answerer, write their answer to the database
     if (guesser === answerer) {
-        const correctAnswerRef = ref(db, `questions/${question}/correctAnswer`);
+        const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}questions/${question}/correctAnswer`);
         await set(correctAnswerRef, guess);
         return;
     }
     
     // If guesser is not the answerer, check for correct answer
-    const correctAnswerRef = ref(db, `questions/${question}/correctAnswer`);
+    const correctAnswerRef = ref(db, `${gameCode ? `gamecode/${gameCode}/` : ''}questions/${question}/correctAnswer`);
     const correctAnswerSnapshot = await get(correctAnswerRef);
     
     // If correct answer doesn't exist yet, return waiting status
@@ -27,8 +30,11 @@ async function trackScores(question: string, answerer: string, guesser: string, 
     // Calculate knowledge score
     const isCorrect = await calculateKnowledgeScore(question, guess, correctAnswer);
     
+    // Construct the base path for scores
+    const baseScorePath = gameCode ? `gamecode/${gameCode}/scores` : 'scores';
+    
     // Reference to the guesser's score tracking
-    const guessersScoreRef = ref(db, `scores/${guesser}`);
+    const guessersScoreRef = ref(db, `${baseScorePath}/${guesser}`);
     const guessersScoreSnapshot = await get(guessersScoreRef);
     
     // Get current scores or initialize if not exists
@@ -60,8 +66,39 @@ async function trackScores(question: string, answerer: string, guesser: string, 
     await update(guessersScoreRef, {
         [answerer]: playerScores
     });
+
+    // Optional: Log the score tracking for debugging
+    console.log(`Score tracked - Guesser: ${guesser}, Answerer: ${answerer}, Correct: ${isCorrect}`);
+
+    return isCorrect ? 1 : 0;
 }
 
+// // Optional: Helper function to fetch scores
+// export const fetchPlayerScores = async (guesser: string, gameCode?: string) => {
+//     try {
+//         const baseScorePath = gameCode ? `gamecode/${gameCode}/scores` : 'scores';
+//         const scoresRef = ref(db, `${baseScorePath}/${guesser}`);
+//         const scoresSnapshot = await get(scoresRef);
+        
+//         return scoresSnapshot.exists() ? scoresSnapshot.val() : {};
+//     } catch (error) {
+//         console.error('Error fetching player scores:', error);
+//         return {};
+//     }
+// }
+
+// // Optional: Helper function to get overall game scores
+// export const fetchGameScores = async (gameCode: string) => {
+//     try {
+//         const scoresRef = ref(db, `gamecode/${gameCode}/scores`);
+//         const scoresSnapshot = await get(scoresRef);
+        
+//         return scoresSnapshot.exists() ? scoresSnapshot.val() : {};
+//     } catch (error) {
+//         console.error('Error fetching game scores:', error);
+//         return {};
+//     }
+// }
 
 
 

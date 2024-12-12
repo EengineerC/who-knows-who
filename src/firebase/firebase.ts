@@ -18,15 +18,14 @@ export const db = getDatabase(app);
 
 
 // Function to set up the initial database structure
-async function initializeGameDatabase(gameCode: string) {
+export async function initializeGameDatabase(gameCode: string) {
     try {
-        // Create the base structure for a specific game code
         await set(ref(db, `gamecode/${gameCode}/questions`), {
-            // You can add an initial empty questions object if needed
+            //nothing in here looks so weird
         });
 
         await set(ref(db, `gamecode/${gameCode}/scores`), {
-            // You can add an initial empty scores object if needed
+
         });
 
         console.log(`Game database structure initialized for game code: ${gameCode}`);
@@ -37,7 +36,7 @@ async function initializeGameDatabase(gameCode: string) {
 
 
 // Function to fetch scores from the database
-async function fetchScores(
+export async function fetchScores(
   gameCode: string = 'exampleGame'
 ): Promise<PlayerKnowledgeScores> {
   try {
@@ -45,7 +44,6 @@ async function fetchScores(
       const scoreSnapshot = await get(child(ref(db), scoresPath));
 
       if (scoreSnapshot.exists()) {
-          console.log(scoreSnapshot.val());
           return scoreSnapshot.val();
       } else {
           console.warn('No scores found in database');
@@ -57,8 +55,40 @@ async function fetchScores(
   }
 }
 
+
+export async function getGameState(gameCode: string) {
+  try {
+    const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
+    const snapshot = await get(stateRef);
+    return snapshot.exists() ? snapshot.val() : null;
+  } catch (error) {
+    console.error("Error getting game state:", error);
+    return null;
+  }
+}
+async function updateGameState(gameCode: string, updates: any) {
+  try {
+    const stateRef = ref(db, `gamecode/${gameCode}/gameState`);
+    await update(stateRef, updates);
+  } catch (error) {
+    console.error("Error updating game state:", error);
+  }
+}
+
+export async function selectRandomAnswerer(gameCode: string, players: string[]) {
+  const randomIndex = Math.floor(Math.random() * players.length);
+  const answerer = players[randomIndex];
+  
+  await updateGameState(gameCode, {
+    currentAnswerer: answerer,
+    questionStatus: 'awaiting_answer'
+  });
+
+  return answerer;
+}
+
 // Function to add a question to the database
-async function addQuestion(gameCode: string, questionText: string) {
+export async function addQuestion(gameCode: string, questionText: string) {
   try {
       await set(ref(db, `gamecode/${gameCode}/questions/`), questionText);
   } catch (error) {
@@ -66,7 +96,7 @@ async function addQuestion(gameCode: string, questionText: string) {
   }
 }
 
-async function setCorrectAnswer(gameCode: string, questionText: string, correctAnswer: string) {
+export async function setCorrectAnswer(gameCode: string, questionText: string, correctAnswer: string) {
   try {
       await set(ref(db, `gamecode/${gameCode}/questions/${questionText}/correctAnswer`), correctAnswer);
   } catch (error) {
@@ -74,58 +104,10 @@ async function setCorrectAnswer(gameCode: string, questionText: string, correctA
   }
 }
 
-async function addPlayer(gameCode: string, guesser: string) {
+export async function addPlayer(gameCode: string, guesser: string) {
   try {
       await set(ref(db, `gamecode/${gameCode}/scores/`), guesser);
   } catch (error) {
       console.error("Error adding question:", error);
   }
 }
-
-// Function to update scores
-async function updateScores(
-    gameCode: string, 
-    guesser: string, 
-    answerer: string, 
-    isCorrect: boolean
-) {
-    try {
-        const scoreRef = ref(db, `gamecode/${gameCode}/scores/${guesser}/${answerer}`);
-        
-        // First, get the current scores
-        const snapshot = await get(scoreRef);
-        const currentScores = snapshot.exists() ? snapshot.val() : {
-            totalGuesses: 0,
-            correctGuesses: 0,
-            accuracyPercentage: 0
-        };
-
-        // Update scores
-        const updatedScores = {
-            totalGuesses: (currentScores.totalGuesses || 0) + 1,
-            correctGuesses: isCorrect 
-                ? (currentScores.correctGuesses || 0) + 1 
-                : (currentScores.correctGuesses || 0),
-            accuracyPercentage: 0 // We'll calculate this next
-        };
-
-        // Recalculate accuracy percentage
-        updatedScores.accuracyPercentage = updatedScores.totalGuesses > 0
-            ? Math.round((updatedScores.correctGuesses / updatedScores.totalGuesses) * 100)
-            : 0;
-
-        // Update the database
-        await set(scoreRef, updatedScores);
-    } catch (error) {
-        console.error("Error updating scores:", error);
-    }
-}
-
-export {
-  initializeGameDatabase,
-  addQuestion,
-  addPlayer,
-  setCorrectAnswer,
-  updateScores,
-  fetchScores  
-};
