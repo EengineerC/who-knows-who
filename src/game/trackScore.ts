@@ -39,7 +39,6 @@ export const trackScores = async (
     const currentScores = guessersScoreSnapshot.exists() 
         ? guessersScoreSnapshot.val() 
         : {}
-    console.log('currnescores',currentScores)
     
     // Initialize player's entry if not exists
     const playerScores = currentScores[answerer] || { 

@@ -11,8 +11,10 @@ export async function calculateKnowledgeScore(
     
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ model: "gemini-pro" })
+    console.log('question', question, 'correct answer', correctAnswer, 'guess', guess);
+    
 
-    const prompt = `the question was ${question} and the correct answer was ${correctAnswer} the answer entered was ${guess}. Is that a reasonably close answer? answer with 1 or 0`
+    const prompt = `the question was ${question} and the correct answer was: ${correctAnswer}. The answer entered was: ${guess}. Is that a reasonably close answer? answer with 1 or 0`
 
     try {
         const result = await model.generateContent(prompt)
