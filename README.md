@@ -1,36 +1,77 @@
-# SvelteKit Demo app
+# Who Knows Who
 
-The official demo app for SvelteKit, hosted on Vercel.
+## Overview
+**Who Knows Who** is an interactive game app that uses the Gemini AI system to generate fun and personalized questions. In each round, a random player is chosen as the subject of the guessing game. Other players try to match their answers to the subject's answers, with Gemini judging how well the guesses align. The game is designed for engagement, fun, and learning about each other!
 
-## Deploy Your Own
+---
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fvercel%2Ftree%2Fmain%2Fexamples%2Fsveltekit-1&project-name=sveltekit-vercel&repository-name=sveltekit-vercel&demo-title=SvelteKit%20%2B%20Vercel&demo-url=https%3A%2F%2Fsveltekit-template.vercel.app%2F)
+## Features
+- **Question Generation:** Uses Gemini AI to create dynamic, personalized questions.
+- **Random Player Selection:** Randomly selects a player as the subject for each round.
+- **Answer Matching:** Compares guesses to the subject's answers using Gemini for fairness and accuracy.
+- **Score Tracking:** Tracks player performance to enhance competitiveness.
+- **Visuals:** Uses Chart.js to create a graph of how each player is doing 
 
-_Live Example: https://sveltekit-1-template.vercel.app_
+---
 
-## Developing
+## Installation and Setup
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Prerequisites
+- **Node.js** (version 14 or higher)
+- **npm** (comes with Node.js)
 
-```bash
-npm run dev
+### Steps
+1. Clone the repository to your local machine:
+   ```bash
+   git clone <repository-url>
+   cd who-knows-who
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+2. Install dependencies:
+   ```bash
+   npm i
+   ```
 
-## Building
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-To create a production version of your app:
+4. Open the app in your browser at:
+   ```
+   http://localhost:3000
+   ```
 
-```bash
-npm run build
-```
+---
 
-You can preview the production build with `npm run preview`.
+## Game Flow
+1. **Start a Game:** Players join by entering a game code.
+2. **Random Player Selection:** A player is randomly selected as the answerer for the round.
+3. **Question Generation:** Gemini generates a question specific to the answerer.
+4. **Guessing Phase:** Other players submit their guesses.
+5. **Answer Evaluation:** Gemini compares the guesses to the answerer's answer and determines how close they match.
+6. **Score Update:** Scores are updated and displayed for all players.
 
-## Speed Insights
+---
 
-Once deployed on Vercel, you can benefit from [Speed Insights](https://vercel.com/docs/concepts/speed-insights) simply by navigating to Vercel's dashboard, clicking on the 'Speed Insights' tab, and enabling the product.
+## Development Notes
+- **Firebase Integration:** The app uses Firebase Realtime Database for player management, game state tracking, and score storage.
+- **Gemini API:** Handles question generation and answer evaluation.
+- **SvelteKit Framework:** The app is built using SvelteKit for a fast and reactive user experience.
 
-You will get data once your application will be re-deployed and will receive visitors.
+---
+
+## Contributing
+We welcome contributions to improve **Who Knows Who**! Please follow these steps:
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes with clear messages.
+4. Open a pull request to the main repository.
+
+---
+
+## License
+None
+
+---
+

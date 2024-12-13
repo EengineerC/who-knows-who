@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
-    import { ref, remove } from 'firebase/database';
+    import { goto, invalidateAll } from '$app/navigation';
+    import { get, ref, remove } from 'firebase/database';
     import { db } from '../../../firebase/firebase';
     import GraphScore from "../../GraphScore.svelte";
 
@@ -34,11 +34,25 @@
         }
     }
 
-    function resetForm() {
+    async function resetForm() {
+    try {    
+        const roundStatus: string = (await get(ref(db, `gamecode/${gameCode}/roundStatus/`))).val()
+        if(roundStatus === 'inProgress'){ 
+            form.error = 'Please wait until everyone has answered!'
+            return
+        }
         formSubmitted = false
         message = null
         submitting = false
+        
+        // reload page. i have to do this so everyone but the last person to answer also gets the new question
+        await invalidateAll()
+        
+    } catch (error) {
+        console.error('Error resetting form:', error)
+        alert('Failed to reset. Please try again.')
     }
+}
 
     async function endGame() {
         try {

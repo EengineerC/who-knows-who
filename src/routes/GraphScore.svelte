@@ -19,7 +19,6 @@
 
   onMount(async () => {
     try {
-      // Fetch scores from Firebase
       exampleData = await fetchScores(gameCode);
 
     } catch (error) {
